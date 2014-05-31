@@ -1,0 +1,166 @@
+﻿<Window x:Class="TextClipper.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+        xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+        xmlns:v="clr-namespace:TextClipper.Views"
+        xmlns:vm="clr-namespace:TextClipper.ViewModels"
+        xmlns:conv="clr-namespace:TextClipper.Converters"
+        Title="TextClipper" Width="256" SizeToContent="Height"
+        WindowStyle="None" ResizeMode="NoResize"
+        Topmost="{Binding TopMost}"
+        ShowInTaskbar="{Binding ShowInTaskBar}"
+        Icon="../Resources/mainicon.ico">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="{x:Static SystemParameters.CaptionHeight}"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+
+    <i:Interaction.Triggers>
+
+        <!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
+        <!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
+        <!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています -->
+
+        <!--WindowのContentRenderedイベントのタイミングでViewModelのInitializeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="ContentRendered">
+            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize"/>
+        </i:EventTrigger>
+
+        <!--Windowが閉じたタイミングでViewModelのDisposeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="Closed">
+            <l:DataContextDisposeAction/>
+        </i:EventTrigger>
+
+        <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
+
+    </i:Interaction.Triggers>
+
+    <Border BorderBrush="Gray" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Height="16" Orientation="Horizontal" HorizontalAlignment="Right">
+                <CheckBox Style="{StaticResource CaptionControlStyle}" ToolTip="ShowInTaskbar" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" IsChecked="{Binding ShowInTaskBar, Mode=TwoWay}">
+                    <CheckBox.Template>
+                        <ControlTemplate>
+                            <Image>
+                                <Image.Style>
+                                    <Style TargetType="Image" BasedOn="{StaticResource IconPressStyle}">
+                                        <Setter Property="Image.Source" Value="../Resources/show.png"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=CheckBox}}" Value="False">
+                                                <Setter Property="Image.Source" Value="../Resources/hide.png">
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </ControlTemplate>
+                    </CheckBox.Template>
+                </CheckBox>
+                
+                <CheckBox Style="{StaticResource CaptionControlStyle}" ToolTip="TopMost" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" IsChecked="{Binding TopMost, Mode=TwoWay}">
+                    <CheckBox.Template>
+                        <ControlTemplate>
+                            <Image Source="../Resources/pin.png">
+                                <Image.Style>
+                                    <Style TargetType="Image" BasedOn="{StaticResource IconPressStyle}">
+                                        <Setter Property="Image.RenderTransformOrigin" Value="0.5, 0.5"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=CheckBox}}" Value="True">
+                                                <Setter Property="Image.RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="-90"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </ControlTemplate>
+                    </CheckBox.Template>
+                </CheckBox>
+                
+                <Button Style="{StaticResource CaptionButtonStyle}" ToolTip="Exit" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <l:WindowInteractionMessageAction>
+                                <l:DirectInteractionMessage>
+                                    <l:WindowActionMessage Action="Close"/>
+                                </l:DirectInteractionMessage>
+                            </l:WindowInteractionMessageAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <Image Style="{StaticResource IconPressStyle}" Source="../Resources/remove.png"/>
+                </Button>
+            </StackPanel>
+            
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding ClippedTexts}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Orientation="Horizontal">
+
+                                <Button Margin="1" ToolTip="Output to Clipboard" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <l:LivetCallMethodAction MethodName="OutputText" MethodTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext}" MethodParameter="{Binding Created}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Image Style="{StaticResource IconPressStyle}" Source="../Resources/output.png"/>
+
+                                </Button>
+
+                                <Button Margin="1" ToolTip="Input from Clipboard" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <l:LivetCallMethodAction MethodName="InputText" MethodTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext}" MethodParameter="{Binding Created}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Image Style="{StaticResource IconPressStyle}" Source="../Resources/input.png"/>
+                                </Button>
+
+                            </StackPanel>
+
+                            <TextBox ToolTip="{Binding Value}" Grid.Column="1" Margin="1" IsReadOnly="True">
+                                <TextBox.Text>
+                                    <Binding Path="Value">
+                                        <Binding.Converter>
+                                            <conv:StringShortenerConverter/>
+                                        </Binding.Converter>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+
+                            <Button ToolTip="Remove from list" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Grid.Column="2" Margin="1">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <l:LivetCallMethodAction MethodName="RemoveText" MethodTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext}" MethodParameter="{Binding Created}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <Image Style="{StaticResource IconPressStyle}" Source="../Resources/remove.png"/>
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </Border>
+</Window>
