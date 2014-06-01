@@ -69,6 +69,10 @@
                     </CheckBox.Template>
                 </CheckBox>
                 
+                <Button Style="{StaticResource CaptionButtonStyle}" ToolTip="Minimize" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                    <Image Style="{StaticResource IconPressStyle}" Source="../Resources/minimize.png"/>
+                </Button>
+                
                 <CheckBox Style="{StaticResource CaptionControlStyle}" ToolTip="TopMost" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" IsChecked="{Binding TopMost, Mode=TwoWay}">
                     <CheckBox.Template>
                         <ControlTemplate>

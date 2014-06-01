@@ -117,6 +117,7 @@
     <Content Include="InfrastructureAssemblies\Livet.XML" />
     <Content Include="InfrastructureAssemblies\Microsoft.Expression.Interactions.dll" />
     <Content Include="InfrastructureAssemblies\System.Windows.Interactivity.dll" />
+    <Resource Include="Resources\minimize.png" />
     <Resource Include="Resources\show.png" />
     <Resource Include="Resources\hide.png" />
     <Resource Include="Resources\mainicon.ico" />
