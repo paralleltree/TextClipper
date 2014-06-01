@@ -29,7 +29,7 @@ namespace TextClipper
         //        "エラー",
         //        MessageBoxButton.OK,
         //        MessageBoxImage.Error);
-        
+
         //    Environment.Exit(1);
         //}
     }

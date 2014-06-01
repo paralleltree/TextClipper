@@ -10,7 +10,7 @@
         Title="TextClipper" Width="256" SizeToContent="Height"
         WindowStyle="None" ResizeMode="NoResize"
         Topmost="{Binding TopMost}"
-        ShowInTaskbar="{Binding ShowInTaskBar}"
+        ShowInTaskbar="{Binding ShowInTaskbar}"
         Icon="../Resources/mainicon.ico">
 
     <WindowChrome.WindowChrome>
@@ -39,6 +39,14 @@
 
         <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
 
+        <l:InteractionMessageTrigger MessageKey="Minimize" 
+			Messenger="{Binding Messenger, Mode=OneWay}">
+            <l:WindowInteractionMessageAction>
+                <l:DirectInteractionMessage>
+                    <l:WindowActionMessage Action="Minimize"/>
+                </l:DirectInteractionMessage>
+            </l:WindowInteractionMessageAction>
+        </l:InteractionMessageTrigger>
     </i:Interaction.Triggers>
 
     <Border BorderBrush="Gray" BorderThickness="1">
@@ -47,9 +55,9 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            
+
             <StackPanel Height="16" Orientation="Horizontal" HorizontalAlignment="Right">
-                <CheckBox Style="{StaticResource CaptionControlStyle}" ToolTip="ShowInTaskbar" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" IsChecked="{Binding ShowInTaskBar, Mode=TwoWay}">
+                <CheckBox Style="{StaticResource CaptionControlStyle}" ToolTip="ShowInTaskbar" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" IsChecked="{Binding ShowInTaskbar, Mode=TwoWay}">
                     <CheckBox.Template>
                         <ControlTemplate>
                             <Image>
@@ -68,11 +76,18 @@
                         </ControlTemplate>
                     </CheckBox.Template>
                 </CheckBox>
-                
-                <Button Style="{StaticResource CaptionButtonStyle}" ToolTip="Minimize" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+
+                <Button Style="{StaticResource CaptionButtonStyle}" ToolTip="Minimize" Command="{Binding MinimizeCommand}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                    <Button.Visibility>
+                        <Binding Path="ShowInTaskbar">
+                            <Binding.Converter>
+                                <conv:BooleanToVisibilityWithCollapsedCoverter/>
+                            </Binding.Converter>
+                        </Binding>
+                    </Button.Visibility>
                     <Image Style="{StaticResource IconPressStyle}" Source="../Resources/minimize.png"/>
                 </Button>
-                
+
                 <CheckBox Style="{StaticResource CaptionControlStyle}" ToolTip="TopMost" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" IsChecked="{Binding TopMost, Mode=TwoWay}">
                     <CheckBox.Template>
                         <ControlTemplate>
@@ -95,7 +110,7 @@
                         </ControlTemplate>
                     </CheckBox.Template>
                 </CheckBox>
-                
+
                 <Button Style="{StaticResource CaptionButtonStyle}" ToolTip="Exit" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
@@ -109,7 +124,7 @@
                     <Image Style="{StaticResource IconPressStyle}" Source="../Resources/remove.png"/>
                 </Button>
             </StackPanel>
-            
+
             <ItemsControl Grid.Row="1" ItemsSource="{Binding ClippedTexts}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

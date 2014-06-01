@@ -145,21 +145,23 @@ namespace TextClipper.ViewModels
         }
         #endregion
 
-        #region ViewProp
+        #region View
         private bool _topmost = false;
-        public bool TopMost {
+        public bool TopMost
+        {
             get { return _topmost; }
-            set {
+            set
+            {
                 if (_topmost != value)
                 {
                     _topmost = value;
-                     RaisePropertyChanged();
+                    RaisePropertyChanged();
                 }
             }
         }
 
         private bool _showInTaskbar = true;
-        public bool ShowInTaskBar
+        public bool ShowInTaskbar
         {
             get { return _showInTaskbar; }
             set
@@ -171,6 +173,37 @@ namespace TextClipper.ViewModels
                 }
             }
         }
+
+
+        #region MinimizeCommand
+        private ViewModelCommand _MinimizeCommand;
+
+        public ViewModelCommand MinimizeCommand
+        {
+            get
+            {
+                if (_MinimizeCommand == null)
+                {
+                    _MinimizeCommand = new ViewModelCommand(Minimize, CanMinimize);
+                }
+                return _MinimizeCommand;
+            }
+        }
+
+        public bool CanMinimize()
+        {
+            return ShowInTaskbar == true;
+        }
+
+        public void Minimize()
+        {
+            if (CanMinimize())
+            {
+                Messenger.Raise(new WindowActionMessage(WindowAction.Minimize, "Minimize"));
+            }
+        }
+        #endregion
+
         #endregion
 
         public void Initialize()
