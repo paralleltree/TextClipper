@@ -35,8 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>Resources\mainicon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Livet">
@@ -118,10 +120,10 @@
     <Content Include="InfrastructureAssemblies\Livet.XML" />
     <Content Include="InfrastructureAssemblies\Microsoft.Expression.Interactions.dll" />
     <Content Include="InfrastructureAssemblies\System.Windows.Interactivity.dll" />
+    <Resource Include="Resources\mainicon.ico" />
     <Resource Include="Resources\minimize.png" />
     <Resource Include="Resources\show.png" />
     <Resource Include="Resources\hide.png" />
-    <Resource Include="Resources\mainicon.ico" />
     <Resource Include="Resources\pin.png" />
     <Resource Include="Resources\output.png" />
     <Resource Include="Resources\remove.png" />

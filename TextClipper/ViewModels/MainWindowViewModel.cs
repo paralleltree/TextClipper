@@ -65,7 +65,7 @@ namespace TextClipper.ViewModels
         {
             get
             {
-                return model.Texts;
+                return model.ClippedTexts;
             }
         }
 
@@ -92,8 +92,7 @@ namespace TextClipper.ViewModels
         public void InputText(DateTime parameter)
         {
             if (!CanInputText()) return;
-            ClippedTexts.Where(p => p.Created == parameter).Single().Value = System.Windows.Clipboard.GetText();
-            if (parameter == ClippedTexts.Last().Created) ClippedTexts.Add(new ClipItem(""));
+            model.InputText(System.Windows.Clipboard.GetText(), parameter);
         }
         #endregion
 
@@ -114,7 +113,7 @@ namespace TextClipper.ViewModels
 
         public void OutputText(DateTime parameter)
         {
-            System.Windows.Clipboard.SetText(ClippedTexts.Where(p => p.Created == parameter).Single().Value);
+            model.OutputText(parameter);
         }
         #endregion
 
@@ -141,7 +140,7 @@ namespace TextClipper.ViewModels
         public void RemoveText(DateTime parameter)
         {
             if (!CanRemoveText()) return;
-            ClippedTexts.Remove(ClippedTexts.Where(p => p.Created == parameter).Single());
+            model.RemoveText(parameter);
         }
         #endregion
 

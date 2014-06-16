@@ -14,11 +14,29 @@ namespace TextClipper.Models
          * NotificationObjectはプロパティ変更通知の仕組みを実装したオブジェクトです。
          */
 
-        public ObservableCollection<ClipItem> Texts { get; set; }
+        private ObservableCollection<ClipItem> _clippedtexts;
+        public ObservableCollection<ClipItem> ClippedTexts { get { return _clippedtexts; } }
 
         public void Initialize()
         {
-            Texts = new ObservableCollection<ClipItem>() { new ClipItem("") };
+            _clippedtexts = new ObservableCollection<ClipItem>() { new ClipItem("") };
+        }
+
+
+        public void InputText(string value, DateTime created)
+        {
+            ClippedTexts.Where(p => p.Created == created).Single().Value = value;
+            if (ClippedTexts.Last().Created == created) ClippedTexts.Add(new ClipItem(""));
+        }
+
+        public void OutputText(DateTime created)
+        {
+            System.Windows.Clipboard.SetText(ClippedTexts.Where(p => p.Created == created).Single().Value);
+        }
+
+        public void RemoveText(DateTime created)
+        {
+            ClippedTexts.Remove(ClippedTexts.Where(p => p.Created == created).Single());
         }
     }
 
