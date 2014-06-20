@@ -12,6 +12,7 @@ using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
 using TextClipper.Models;
+using TextClipper.Plugin;
 
 namespace TextClipper.ViewModels
 {
@@ -68,6 +69,8 @@ namespace TextClipper.ViewModels
                 return model.ClippedTexts;
             }
         }
+
+        public IEnumerable<PluginInfo> Plugins { get { return model.Plugins; } }
 
         #region InputTextCommand
         private ListenerCommand<DateTime> _InputTextCommand;
@@ -209,6 +212,14 @@ namespace TextClipper.ViewModels
         {
             model.Initialize();
             RaisePropertyChanged("ClippedTexts");
+            RaisePropertyChanged("Plugins");
+        }
+
+        // とりあえずここで
+        protected override void Dispose(bool disposing)
+        {
+            foreach (PluginInfo p in Plugins) p.Plugin.Exit();
+            base.Dispose(disposing);
         }
     }
 }

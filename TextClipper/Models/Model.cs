@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
+using System.Reflection;
 
 using Livet;
+using TextClipper.Plugin;
 
 namespace TextClipper.Models
 {
@@ -17,21 +21,46 @@ namespace TextClipper.Models
         private ObservableCollection<ClipItem> _clippedtexts;
         public ObservableCollection<ClipItem> ClippedTexts { get { return _clippedtexts; } }
 
+        private IEnumerable<PluginInfo> _plugins;
+        public IEnumerable<PluginInfo> Plugins { get { return _plugins; } }
+
         public void Initialize()
         {
             _clippedtexts = new ObservableCollection<ClipItem>() { new ClipItem("") };
+
+
+            // プラグインロード
+            if (!System.IO.Directory.Exists("Plugins")) System.IO.Directory.CreateDirectory("plugins");
+
+            //var assembly = new AssemblyCatalog(Assembly.GetExecutingAssembly());
+            var extensions = new DirectoryCatalog("Plugins");
+            var catalog = new AggregateCatalog();
+            catalog.Catalogs.Add(extensions);
+
+            var container = new CompositionContainer(catalog);
+            var plugins = container.GetExportedValues<IPlugin>();
+            var list = new List<PluginInfo>();
+            foreach (IPlugin p in plugins) list.Add(new PluginInfo(p));
+            this._plugins = list;
         }
 
 
         public void InputText(string value, DateTime created)
         {
+            foreach (PluginInfo p in Plugins)
+                if (p.IsEnabled && p.Inputter != null)
+                    value = p.Inputter.Inputting(value);
             ClippedTexts.Where(p => p.Created == created).Single().Value = value;
             if (ClippedTexts.Last().Created == created) ClippedTexts.Add(new ClipItem(""));
         }
 
         public void OutputText(DateTime created)
         {
-            System.Windows.Clipboard.SetText(ClippedTexts.Where(p => p.Created == created).Single().Value);
+            string value = ClippedTexts.Where(p => p.Created == created).Single().Value;
+            foreach (PluginInfo p in Plugins)
+                if (p.IsEnabled && p.Outputter != null)
+                    value = p.Outputter.Outputting(value);
+            System.Windows.Clipboard.SetText(value);
         }
 
         public void RemoveText(DateTime created)

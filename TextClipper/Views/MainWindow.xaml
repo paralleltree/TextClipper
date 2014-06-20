@@ -52,11 +52,50 @@
     <Border BorderBrush="Gray" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="18"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Height="16" Orientation="Horizontal" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Padding="0" ToolTip="Plugin" Style="{StaticResource CaptionButtonStyle}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                    <Image Source="../Resources/extension.png"/>
+                </Button>
+                <ItemsControl ItemsSource="{Binding Plugins}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox ToolTip="{Binding Plugin.Description}" Style="{StaticResource CaptionControlStyle}" IsChecked="{Binding IsEnabled, Mode=TwoWay}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                                <CheckBox.Template>
+                                    <ControlTemplate>
+                                        <Image Source="{Binding Plugin.Icon}">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Setter Property="UIElement.Opacity" Value="1"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=CheckBox}}" Value="False">
+                                                            <Setter Property="UIElement.Opacity" Value="0.6"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </ControlTemplate>
+                                </CheckBox.Template>
+
+                            </CheckBox>
+                            <!--<Border BorderBrush="Red" BorderThickness="1" ToolTip="{Binding Plugin.Name}">
+                        </Border>-->
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <CheckBox Style="{StaticResource CaptionControlStyle}" ToolTip="ShowInTaskbar" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" IsChecked="{Binding ShowInTaskbar, Mode=TwoWay}">
                     <CheckBox.Template>
                         <ControlTemplate>
@@ -66,8 +105,7 @@
                                         <Setter Property="Image.Source" Value="../Resources/show.png"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=CheckBox}}" Value="False">
-                                                <Setter Property="Image.Source" Value="../Resources/hide.png">
-                                                </Setter>
+                                                <Setter Property="Image.Source" Value="../Resources/hide.png"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -77,7 +115,7 @@
                     </CheckBox.Template>
                 </CheckBox>
 
-                <Button Style="{StaticResource CaptionButtonStyle}" ToolTip="Minimize" Command="{Binding MinimizeCommand}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                <Button ToolTip="Minimize" Style="{StaticResource CaptionButtonStyle}" Command="{Binding MinimizeCommand}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
                     <Button.Visibility>
                         <Binding Path="ShowInTaskbar">
                             <Binding.Converter>
@@ -88,7 +126,7 @@
                     <Image Style="{StaticResource IconPressStyle}" Source="../Resources/minimize.png"/>
                 </Button>
 
-                <CheckBox Style="{StaticResource CaptionControlStyle}" ToolTip="TopMost" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" IsChecked="{Binding TopMost, Mode=TwoWay}">
+                <CheckBox ToolTip="TopMost" Style="{StaticResource CaptionControlStyle}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" IsChecked="{Binding TopMost, Mode=TwoWay}">
                     <CheckBox.Template>
                         <ControlTemplate>
                             <Image Source="../Resources/pin.png">
@@ -111,7 +149,7 @@
                     </CheckBox.Template>
                 </CheckBox>
 
-                <Button Style="{StaticResource CaptionButtonStyle}" ToolTip="Exit" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                <Button ToolTip="Exit" Style="{StaticResource CaptionButtonStyle}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
                             <l:WindowInteractionMessageAction>
@@ -136,7 +174,6 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Orientation="Horizontal">
-
                                 <Button Margin="1" ToolTip="Output to Clipboard" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Click">
@@ -144,7 +181,6 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                     <Image Style="{StaticResource IconPressStyle}" Source="../Resources/output.png"/>
-
                                 </Button>
 
                                 <Button Margin="1" ToolTip="Input from Clipboard" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
