@@ -215,10 +215,9 @@ namespace TextClipper.ViewModels
             RaisePropertyChanged("Plugins");
         }
 
-        // とりあえずここで
         protected override void Dispose(bool disposing)
         {
-            foreach (PluginInfo p in Plugins) p.Plugin.Exit();
+            model.Exit();
             base.Dispose(disposing);
         }
     }

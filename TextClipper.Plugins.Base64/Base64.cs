@@ -42,7 +42,7 @@ namespace TextClipper.Plugins.Base64
 
         public string Inputting(string value)
         {
-            if (!System.Text.RegularExpressions.Regex.IsMatch(value, "[^A-Za-z0-9+-=]"))
+            if (!System.Text.RegularExpressions.Regex.IsMatch(value, "[^A-Za-z0-9=+-]"))
                 try
                 {
                     value = Encoding.UTF8.GetString(Convert.FromBase64String(value));
