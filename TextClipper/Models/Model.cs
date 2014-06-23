@@ -23,11 +23,10 @@ namespace TextClipper.Models
 
         public void Initialize()
         {
-            var last = OpenContents();
+            var last = ContentUtil.OpenContents();
             if (last.Count() == 0)
                 _clippedtexts = new ObservableCollection<ClipItem>() { new ClipItem("") };
             else
-                //_clippedtexts = new ObservableCollection<ClipItem>(last.Select(p => new ClipItem(p)));
                 _clippedtexts = new ObservableCollection<ClipItem>(last);
 
             _plugins = PluginInfo.GetPlugins();
@@ -36,8 +35,7 @@ namespace TextClipper.Models
         public void Exit()
         {
             foreach (PluginInfo p in Plugins) p.Plugin.Exit();
-            //SaveTexts(ClippedTexts.Select(p => p.Value));
-            SaveContents(ClippedTexts);
+            ContentUtil.SaveContents(ClippedTexts);
         }
 
         public void InputText(string value, DateTime created)
@@ -64,78 +62,44 @@ namespace TextClipper.Models
         }
 
 
-        private const string TextsPath = "Contents.txt";
-        #region Before
-        private static IEnumerable<string> OpenTexts()
+        private static class ContentUtil
         {
-            var list = new List<string>();
-            if (!System.IO.File.Exists(TextsPath)) return list;
+            private static readonly Encoding enc = Encoding.UTF8;
+            private static readonly string TextsPath = "Contents.txt";
 
-            string source = new System.IO.StreamReader(TextsPath).ReadToEnd();
-            var line = System.Text.RegularExpressions.Regex.Split(source, @"\s+");
-            var enc = Encoding.UTF8;
-            foreach (string s in line)
-                try
-                {
-                    list.Add(enc.GetString(Convert.FromBase64String(s)));
-                }
-                catch { }
-            return list;
-            //return line.Select(p => enc.GetString(Convert.FromBase64String(p)));
-        }
-
-        private static void SaveTexts(IEnumerable<string> values)
-        {
-            var enc = Encoding.UTF8;
-            var sb = new StringBuilder((int)(values.Sum(p => p.Length) * 1.4));
-            foreach (string s in values)
-                sb.AppendLine(Convert.ToBase64String(enc.GetBytes(s), Base64FormattingOptions.None));
-
-            using (var writer = new System.IO.StreamWriter(TextsPath))
-                writer.Write(sb.ToString());
-        }
-        #endregion
-        // なんということをしてくれたのでしょう
-        // 匠の手により、簡潔だった記述がこれほど複雑に！！↓
-
-        #region After
-        private static IEnumerable<ClipItem> OpenContents()
-        {
-            var list = new List<ClipItem>();
-            if (!System.IO.File.Exists(TextsPath)) return list;
-
-            string source = new System.IO.StreamReader(TextsPath).ReadToEnd();
-            var line = System.Text.RegularExpressions.Regex.Split(source, @"\r*\n+").TakeWhile(p => p != "");
-            var enc = Encoding.UTF8;
-            foreach (string s in line)
+            public static IEnumerable<ClipItem> OpenContents()
             {
-                var items = s.Split(',');
-                try
-                {
-                    list.Add(new ClipItem(DateTime.Parse(items[0]), enc.GetString(Convert.FromBase64String(items[1]))));
-                }
-                catch { }
-            }
-            return list;
-        }
+                var list = new List<ClipItem>();
+                if (!System.IO.File.Exists(TextsPath)) return list;
 
-        private static void SaveContents(IEnumerable<ClipItem> values)
-        {
-            var enc = Encoding.UTF8;
-            var sb = new StringBuilder((int)(values.Sum(p => p.Value.Length) * 1.5));
-            foreach (ClipItem item in values)
-            {
-                sb.Append(item.Created.ToString());
-                sb.Append(',');
-                sb.AppendLine(Convert.ToBase64String(enc.GetBytes(item.Value), Base64FormattingOptions.None));
+                string source = new System.IO.StreamReader(TextsPath).ReadToEnd();
+                var line = System.Text.RegularExpressions.Regex.Split(source, @"\r*\n+").TakeWhile(p => p != "");
+                foreach (string s in line)
+                {
+                    var items = s.Split(',');
+                    try
+                    {
+                        list.Add(new ClipItem(DateTime.Parse(items[0]), enc.GetString(Convert.FromBase64String(items[1]))));
+                    }
+                    catch { }
+                }
+                return list;
             }
 
-            using (var writer = new System.IO.StreamWriter(TextsPath))
-                writer.Write(sb.ToString());
-        }
+            public static void SaveContents(IEnumerable<ClipItem> values)
+            {
+                var sb = new StringBuilder(values.Sum(p => p.Value.Length) * 2 + values.Count() * 20);
+                foreach (ClipItem item in values)
+                {
+                    sb.Append(item.Created.ToString());
+                    sb.Append(',');
+                    sb.AppendLine(Convert.ToBase64String(enc.GetBytes(item.Value), Base64FormattingOptions.None));
+                }
 
-        //書いてて悲しい
-        #endregion
+                using (var writer = new System.IO.StreamWriter(TextsPath))
+                    writer.Write(sb.ToString());
+            }
+        }
 
     }
 
