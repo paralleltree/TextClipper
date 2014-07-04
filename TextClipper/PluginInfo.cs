@@ -43,6 +43,8 @@ namespace TextClipper.Plugin
             IsEnabled = true;
         }
 
+        #region static
+        // ToDo: プラグイン適用状態のリストア
         /// <summary>
         /// 存在するプラグインを取得します。
         /// </summary>
@@ -60,8 +62,50 @@ namespace TextClipper.Plugin
             var container = new CompositionContainer(catalog);
             var plugins = container.GetExportedValues<IPlugin>();
             var list = new List<PluginInfo>();
-            foreach (IPlugin p in plugins) list.Add(new PluginInfo(p));
+            // 適用順に則る
+            var order = OpenOrder();
+            var diff = plugins.Select(p => p.Name).Except(order);
+            order = order.Concat(diff);
+            var ordered = order.Join(plugins, p => p, q => q.Name, (p, q) => q);
+            //plugins.Join(order, p => p.Name, q => q, (p, q) => p);
+            foreach (IPlugin p in ordered) list.Add(new PluginInfo(p));
             return list;
         }
+
+        private static readonly Encoding enc = Encoding.UTF8;
+        private static readonly string PluginsPath = "Plugins.txt";
+
+        /// <summary>
+        /// プラグインの適用順を保存します。
+        /// </summary>
+        public static void SaveOrder(IEnumerable<PluginInfo> plugins)
+        {
+            var sb = new StringBuilder(plugins.Sum(p => p.Plugin.Name.Length) * 2);
+            foreach (PluginInfo p in plugins)
+                sb.AppendLine(Convert.ToBase64String(enc.GetBytes(p.Plugin.Name), Base64FormattingOptions.None));
+
+            using (var writer = new System.IO.StreamWriter(PluginsPath))
+                writer.Write(sb.ToString());
+        }
+
+        /// <summary>
+        /// プラグインの適用順を示す<see cref="System.Collections.Generic.IEnumerable<string>"/> を取得します。
+        /// </summary>
+        /// <returns></returns>
+        private static IEnumerable<string> OpenOrder()
+        {
+            var list = new List<string>();
+            if (!System.IO.File.Exists(PluginsPath)) return list;
+
+            string source = new System.IO.StreamReader(PluginsPath).ReadToEnd();
+            var line = System.Text.RegularExpressions.Regex.Split(source, "\r*\n+").Where(p => p != "");
+            foreach (string s in line)
+            {
+                list.Add(enc.GetString(Convert.FromBase64String(s)));
+            }
+            return list;
+        }
+
+        #endregion
     }
 }

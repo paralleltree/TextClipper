@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Windows;
 
 using Livet;
 using Livet.Commands;
@@ -13,6 +14,7 @@ using Livet.Messaging.Windows;
 
 using TextClipper.Models;
 using TextClipper.Plugin;
+using TextClipper.Behaviors;
 
 namespace TextClipper.ViewModels
 {
@@ -70,7 +72,7 @@ namespace TextClipper.ViewModels
             }
         }
 
-        public IEnumerable<PluginInfo> Plugins { get { return model.Plugins; } }
+        public DispatcherCollection<PluginInfo> Plugins { get { return model.Plugins; } }
 
         #region InputTextCommand
         private ListenerCommand<DateTime> _InputTextCommand;
@@ -206,6 +208,39 @@ namespace TextClipper.ViewModels
         }
         #endregion
 
+        #region DragDrop
+        private DropAcceptDescription _description;
+        public DropAcceptDescription Description
+        {
+            get { return this._description; }
+        }
+
+        private void OnDragOver(DragEventArgs args)
+        {
+            if (args.AllowedEffects.HasFlag(DragDropEffects.Move) &&
+                args.Data.GetDataPresent(typeof(PluginInfo)))
+                args.Effects = DragDropEffects.Move;
+        }
+        void OnDragDrop(DragEventArgs args)
+        {
+            if (!args.Data.GetDataPresent(typeof(PluginInfo))) return;
+
+            var data = args.Data.GetData(typeof(PluginInfo)) as PluginInfo;
+            if (data == null) return;
+            var fe = args.OriginalSource as FrameworkElement;
+            if (fe == null) return;
+            var target = fe.DataContext as PluginInfo;
+            if (target == null) return;
+
+            int si = Plugins.IndexOf(data);
+            int di = Plugins.IndexOf(target);
+            if (si < 0 || di < 0 || si == di) return;
+            System.Diagnostics.Debug.WriteLine("*moved! {0} -> {1}", si, di);
+            Plugins.Move(si, di);
+            RaisePropertyChanged("Plugins");
+        }
+        #endregion
+
         #endregion
 
         public void Initialize()
@@ -213,6 +248,13 @@ namespace TextClipper.ViewModels
             model.Initialize();
             RaisePropertyChanged("ClippedTexts");
             RaisePropertyChanged("Plugins");
+        }
+
+        public MainWindowViewModel()
+        {
+            this._description = new DropAcceptDescription();
+            this._description.DragOver += this.OnDragOver;
+            this._description.DragDrop += this.OnDragDrop;
         }
 
         protected override void Dispose(bool disposing)
