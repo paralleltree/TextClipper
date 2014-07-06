@@ -16,9 +16,15 @@ namespace TextClipper.Models
          */
 
         private ObservableCollection<ClipItem> _clippedtexts;
+        /// <summary>
+        /// クリップされたテキストのコレクションです。
+        /// </summary>
         public ObservableCollection<ClipItem> ClippedTexts { get { return _clippedtexts; } }
 
         private IEnumerable<PluginInfo> _plugins;
+        /// <summary>
+        /// 読み込まれているプラグインのコレクションです。
+        /// </summary>
         public IEnumerable<PluginInfo> Plugins { get { return _plugins; } }
 
         public void Initialize()
@@ -38,15 +44,34 @@ namespace TextClipper.Models
             ContentUtil.SaveContents(ClippedTexts);
         }
 
+        /// <summary>
+        /// 新たにテキストを入力、または上書きする際に呼び出します。
+        /// </summary>
+        /// <param name="value">入力するテキスト</param>
+        /// <param name="created">テキストを識別する時刻</param>
         public void InputText(string value, DateTime created)
         {
             foreach (PluginInfo p in Plugins)
                 if (p.IsEnabled && p.Inputter != null)
                     value = p.Inputter.Inputting(value);
+            EditText(value, created);
+        }
+
+        /// <summary>
+        /// クリップされたテキストを編集する際に呼び出します。
+        /// </summary>
+        /// <param name="value">編集されたテキスト</param>
+        /// <param name="created">テキストを識別する時刻</param>
+        public void EditText(string value, DateTime created)
+        {
             ClippedTexts.Where(p => p.Created == created).Single().Value = value;
             if (ClippedTexts.Last().Created == created) ClippedTexts.Add(new ClipItem(""));
         }
 
+        /// <summary>
+        /// クリップボードへテキストを書き出す際に呼び出します。
+        /// </summary>
+        /// <param name="created">テキストを識別する時刻</param>
         public void OutputText(DateTime created)
         {
             string value = ClippedTexts.Where(p => p.Created == created).Single().Value;
@@ -56,6 +81,10 @@ namespace TextClipper.Models
             System.Windows.Clipboard.SetText(value);
         }
 
+        /// <summary>
+        /// クリップされたテキストを削除する際に呼び出します。
+        /// </summary>
+        /// <param name="created">テキストを識別する時刻</param>
         public void RemoveText(DateTime created)
         {
             ClippedTexts.Remove(ClippedTexts.Where(p => p.Created == created).Single());

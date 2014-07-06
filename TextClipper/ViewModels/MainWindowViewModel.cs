@@ -72,6 +72,8 @@ namespace TextClipper.ViewModels
 
         public IEnumerable<PluginInfo> Plugins { get { return model.Plugins; } }
 
+        private bool LastWrap;
+
         #region InputTextCommand
         private ListenerCommand<DateTime> _InputTextCommand;
 
@@ -145,6 +147,44 @@ namespace TextClipper.ViewModels
             if (!CanRemoveText()) return;
             model.RemoveText(parameter);
         }
+        #endregion
+
+        #region EditTextCommand
+
+        #region EditTextCommand
+        private ListenerCommand<DateTime> _EditTextCommand;
+
+        public ListenerCommand<DateTime> EditTextCommand
+        {
+            get
+            {
+                if (_EditTextCommand == null)
+                {
+                    _EditTextCommand = new ListenerCommand<DateTime>(EditText);
+                }
+                return _EditTextCommand;
+            }
+        }
+
+        public void EditText(DateTime parameter)
+        {
+            var item = ClippedTexts.Where(p => p.Created == parameter).Single();
+            var msg = Messenger.GetResponse<TransitionMessage>(
+                new TransitionMessage(
+                    new EditWindowViewModel()
+                    {
+                        Item = item.Value,
+                        IsWrapping = LastWrap
+                    },
+                    "EditText"));
+
+            var editvm = (EditWindowViewModel)msg.TransitionViewModel;
+            LastWrap = editvm.IsWrapping;
+            if (editvm.IsEdited)
+                model.EditText(editvm.Item, item.Created);
+        }
+        #endregion
+
         #endregion
 
         #region View

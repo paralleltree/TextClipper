@@ -47,6 +47,11 @@
                 </l:DirectInteractionMessage>
             </l:WindowInteractionMessageAction>
         </l:InteractionMessageTrigger>
+
+        <l:InteractionMessageTrigger MessageKey="EditText" Messenger="{Binding Messenger}">
+            <l:TransitionInteractionMessageAction WindowType="{x:Type v:EditWindow}" Mode="Modal"/>
+        </l:InteractionMessageTrigger>
+
     </i:Interaction.Triggers>
 
     <Border BorderBrush="Gray" BorderThickness="1">
@@ -191,7 +196,6 @@
                                     </i:Interaction.Triggers>
                                     <Image Style="{StaticResource IconPressStyle}" Source="../Resources/input.png"/>
                                 </Button>
-
                             </StackPanel>
 
                             <TextBox ToolTip="{Binding Value}" Grid.Column="1" Margin="1" IsReadOnly="True">
@@ -204,14 +208,25 @@
                                 </TextBox.Text>
                             </TextBox>
 
-                            <Button ToolTip="Remove from list" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Grid.Column="2" Margin="1">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="Click">
-                                        <l:LivetCallMethodAction MethodName="RemoveText" MethodTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext}" MethodParameter="{Binding Created}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                                <Image Style="{StaticResource IconPressStyle}" Source="../Resources/remove.png"/>
-                            </Button>
+                            <StackPanel Orientation="Horizontal" Grid.Column="2">
+                                <Button Margin="1" ToolTip="Edit text" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <l:LivetCallMethodAction MethodName="EditText" MethodTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext}" MethodParameter="{Binding Created}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Image Style="{StaticResource IconPressStyle}" Source="../Resources/edit.png"/>
+                                </Button>
+
+                                <Button ToolTip="Remove from list" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="1">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <l:LivetCallMethodAction MethodName="RemoveText" MethodTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext}" MethodParameter="{Binding Created}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Image Style="{StaticResource IconPressStyle}" Source="../Resources/remove.png"/>
+                                </Button>
+                            </StackPanel>
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
