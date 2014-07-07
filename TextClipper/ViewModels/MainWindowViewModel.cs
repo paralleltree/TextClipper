@@ -60,7 +60,7 @@ namespace TextClipper.ViewModels
          * 自動的にUIDispatcher上での通知に変換されます。変更通知に際してUIDispatcherを操作する必要はありません。
          */
 
-        private Model model = new Model();
+        private Model model;
 
         public System.Collections.ObjectModel.ObservableCollection<ClipItem> ClippedTexts
         {
@@ -210,15 +210,10 @@ namespace TextClipper.ViewModels
 
         public void Initialize()
         {
-            model.Initialize();
+            model = Model.Instance;
             RaisePropertyChanged("ClippedTexts");
             RaisePropertyChanged("Plugins");
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            model.Exit();
-            base.Dispose(disposing);
-        }
     }
 }

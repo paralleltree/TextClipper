@@ -21,7 +21,8 @@ namespace TextClipper.Models
         private IEnumerable<PluginInfo> _plugins;
         public IEnumerable<PluginInfo> Plugins { get { return _plugins; } }
 
-        public void Initialize()
+
+        private Model()
         {
             var last = ContentUtil.OpenContents();
             if (last.Count() == 0)
@@ -32,11 +33,22 @@ namespace TextClipper.Models
             _plugins = PluginInfo.GetPlugins();
         }
 
-        public void Exit()
+        ~Model()
         {
             foreach (PluginInfo p in Plugins) p.Plugin.Exit();
             ContentUtil.SaveContents(ClippedTexts);
         }
+
+        static Model _instance;
+        public static Model Instance
+        {
+            get
+            {
+                if (_instance == null) _instance = new Model();
+                return _instance;
+            }
+        }
+
 
         public void InputText(string value, DateTime created)
         {
