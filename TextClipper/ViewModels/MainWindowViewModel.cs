@@ -64,88 +64,32 @@ namespace TextClipper.ViewModels
 
         public System.Collections.ObjectModel.ObservableCollection<ClipItem> ClippedTexts
         {
-            get
-            {
-                return model.ClippedTexts;
-            }
+            get { return model.ClippedTexts; }
         }
 
-        public IEnumerable<PluginInfo> Plugins { get { return model.Plugins; } }
-
-        #region InputTextCommand
-        private ListenerCommand<DateTime> _InputTextCommand;
-
-        public ListenerCommand<DateTime> InputTextCommand
+        public IEnumerable<PluginInfo> Plugins
         {
-            get
-            {
-                if (_InputTextCommand == null)
-                {
-                    _InputTextCommand = new ListenerCommand<DateTime>(InputText, CanInputText);
-                }
-                return _InputTextCommand;
-            }
+            get { return model.Plugins; }
         }
 
-        public bool CanInputText()
-        {
-            return System.Windows.Clipboard.ContainsText();
-        }
 
         public void InputText(DateTime parameter)
         {
-            if (!CanInputText()) return;
+            if (!System.Windows.Clipboard.ContainsText()) return;
             model.InputText(System.Windows.Clipboard.GetText(), parameter);
-        }
-        #endregion
-
-        #region OutputTextCommand
-        private ListenerCommand<DateTime> _OutputTextCommand;
-
-        public ListenerCommand<DateTime> OutputTextCommand
-        {
-            get
-            {
-                if (_OutputTextCommand == null)
-                {
-                    _OutputTextCommand = new ListenerCommand<DateTime>(OutputText);
-                }
-                return _OutputTextCommand;
-            }
         }
 
         public void OutputText(DateTime parameter)
         {
             model.OutputText(parameter);
         }
-        #endregion
-
-        #region RemoveTextCommand
-        private ListenerCommand<DateTime> _RemoveTextCommand;
-
-        public ListenerCommand<DateTime> RemoveTextCommand
-        {
-            get
-            {
-                if (_RemoveTextCommand == null)
-                {
-                    _RemoveTextCommand = new ListenerCommand<DateTime>(RemoveText, CanRemoveText);
-                }
-                return _RemoveTextCommand;
-            }
-        }
-
-        public bool CanRemoveText()
-        {
-            return ClippedTexts.Count > 1;
-        }
 
         public void RemoveText(DateTime parameter)
         {
-            if (!CanRemoveText()) return;
+            if (!(ClippedTexts.Count > 1)) return;
             model.RemoveText(parameter);
         }
-        #endregion
+
 
         #region View
         private bool _topmost = false;

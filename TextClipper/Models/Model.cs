@@ -134,8 +134,8 @@ namespace TextClipper.Models
 
         public ClipItem(string value)
             : this(DateTime.Now, value)
-        {
-        }
+        { }
+
         public ClipItem(DateTime created, string value)
         {
             this.Created = created;
