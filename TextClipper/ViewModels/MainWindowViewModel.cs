@@ -92,22 +92,6 @@ namespace TextClipper.ViewModels
             model.RemoveText(parameter);
         }
 
-
-        #region EditTextCommand
-        private ListenerCommand<DateTime> _EditTextCommand;
-
-        public ListenerCommand<DateTime> EditTextCommand
-        {
-            get
-            {
-                if (_EditTextCommand == null)
-                {
-                    _EditTextCommand = new ListenerCommand<DateTime>(EditText);
-                }
-                return _EditTextCommand;
-            }
-        }
-
         private bool LastWrap;
         public void EditText(DateTime parameter)
         {
@@ -126,7 +110,6 @@ namespace TextClipper.ViewModels
             if (editvm.IsEdited)
                 model.EditText(editvm.Item, item.Created);
         }
-        #endregion
 
 
         #region View
