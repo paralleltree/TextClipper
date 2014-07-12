@@ -74,7 +74,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <CheckBox Cursor="Hand" ToolTip="{Binding Plugin.Description}" Style="{StaticResource CaptionControlStyle}" IsChecked="{Binding IsEnabled, Mode=TwoWay}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
-                                <i:Interaction.Behaviors> <!--Description, RelativeSource={RelativeSource AncestorType=Window}-->
+                                <i:Interaction.Behaviors>
                                     <b:BeginDragBehavior AllowedEffects="Move" DragDropData="{Binding}"/>
                                 </i:Interaction.Behaviors>
                                 <CheckBox.Template>

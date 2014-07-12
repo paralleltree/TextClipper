@@ -95,7 +95,7 @@ namespace TextClipper.Models
                     sb.AppendLine(string.Format("{0},{1}",
                         item.Created.ToString(),
                         Convert.ToBase64String(enc.GetBytes(item.Value), Base64FormattingOptions.None)));
-                
+
                 using (var writer = new System.IO.StreamWriter(TextsPath))
                     writer.Write(sb.ToString());
             }
