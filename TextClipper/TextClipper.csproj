@@ -74,6 +74,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\EditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -85,11 +89,16 @@
     <Compile Include="Behaviors\AcceptDragBehavior.cs" />
     <Compile Include="Behaviors\BeginDragBehavior.cs" />
     <Compile Include="Converters\StringShortenerConverter.cs" />
+    <Compile Include="Converters\TextWrappingConverter.cs" />
     <Compile Include="Converters\VisibilityCoverter.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Models\Model.cs" />
     <Compile Include="PluginInfo.cs" />
+    <Compile Include="ViewModels\EditWindowViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="Views\EditWindow.xaml.cs">
+      <DependentUpon>EditWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -125,6 +134,7 @@
     <Content Include="InfrastructureAssemblies\Livet.XML" />
     <Content Include="InfrastructureAssemblies\Microsoft.Expression.Interactions.dll" />
     <Content Include="InfrastructureAssemblies\System.Windows.Interactivity.dll" />
+    <Resource Include="Resources\edit.png" />
     <Resource Include="Resources\extension.png" />
     <Resource Include="Resources\mainicon.ico" />
     <Resource Include="Resources\minimize.png" />
@@ -141,6 +151,7 @@
       <Name>TextClipper.Plugin</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

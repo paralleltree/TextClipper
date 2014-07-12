@@ -1,0 +1,88 @@
+﻿<Window x:Class="TextClipper.Views.EditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+        xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+        xmlns:v="clr-namespace:TextClipper.Views"
+        xmlns:vm="clr-namespace:TextClipper.ViewModels"
+        xmlns:c="clr-namespace:TextClipper.Converters"
+        Title="EditWindow" WindowStyle="None" Icon="../Resources/mainicon.ico"
+        Width="420" Height="280" MinWidth="180" MinHeight="86">
+
+    <Window.DataContext>
+        <vm:EditWindowViewModel/>
+    </Window.DataContext>
+
+    <i:Interaction.Triggers>
+
+        <!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
+        <!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
+        <!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています -->
+
+        <!--WindowのContentRenderedイベントのタイミングでViewModelのInitializeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="ContentRendered">
+            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize"/>
+        </i:EventTrigger>
+
+        <!--Windowが閉じたタイミングでViewModelのDisposeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="Closed">
+            <l:DataContextDisposeAction/>
+        </i:EventTrigger>
+
+        <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
+
+    </i:Interaction.Triggers>
+
+    <Border Background="#FF5E8CDE" >
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="26"/>
+            </Grid.RowDefinitions>
+
+            <TextBox Margin="2" Text="{Binding Item}" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <TextBox.TextWrapping>
+                    <Binding Path="IsWrapping">
+                        <Binding.Converter>
+                            <c:TextWrappingConverter/>
+                        </Binding.Converter>
+                    </Binding>
+                </TextBox.TextWrapping>
+            </TextBox>
+
+            <CheckBox IsChecked="{Binding IsWrapping}" Margin="2" Content="WrappingText" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="1">
+                <Button ToolTip="Cancel" Margin="1" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <l:WindowInteractionMessageAction>
+                                <l:DirectInteractionMessage>
+                                    <l:WindowActionMessage Action="Close"/>
+                                </l:DirectInteractionMessage>
+                            </l:WindowInteractionMessageAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <Image Style="{StaticResource IconPressStyle}" Source="../Resources/remove.png"/>
+                </Button>
+
+                <Button ToolTip="Enter" Margin="1" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <l:LivetCallMethodAction MethodName="EnterText" MethodTarget="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                            <l:WindowInteractionMessageAction>
+                                <l:DirectInteractionMessage>
+                                    <l:WindowActionMessage Action="Close"/>
+                                </l:DirectInteractionMessage>
+                            </l:WindowInteractionMessageAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <Image Style="{StaticResource IconPressStyle}" Source="../Resources/input.png"/>
+                </Button>
+
+            </StackPanel>
+
+        </Grid>
+    </Border>
+
+</Window>

@@ -93,6 +93,42 @@ namespace TextClipper.ViewModels
         }
 
 
+        #region EditTextCommand
+        private ListenerCommand<DateTime> _EditTextCommand;
+
+        public ListenerCommand<DateTime> EditTextCommand
+        {
+            get
+            {
+                if (_EditTextCommand == null)
+                {
+                    _EditTextCommand = new ListenerCommand<DateTime>(EditText);
+                }
+                return _EditTextCommand;
+            }
+        }
+
+        private bool LastWrap;
+        public void EditText(DateTime parameter)
+        {
+            var item = ClippedTexts.Where(p => p.Created == parameter).Single();
+            var msg = Messenger.GetResponse<TransitionMessage>(
+                new TransitionMessage(
+                    new EditWindowViewModel()
+                    {
+                        Item = item.Value,
+                        IsWrapping = LastWrap
+                    },
+                    "EditText"));
+
+            var editvm = (EditWindowViewModel)msg.TransitionViewModel;
+            LastWrap = editvm.IsWrapping;
+            if (editvm.IsEdited)
+                model.EditText(editvm.Item, item.Created);
+        }
+        #endregion
+
+
         #region View
         private bool _topmost = false;
         public bool TopMost
