@@ -7,6 +7,7 @@
         xmlns:v="clr-namespace:TextClipper.Views"
         xmlns:vm="clr-namespace:TextClipper.ViewModels"
         xmlns:conv="clr-namespace:TextClipper.Converters"
+        xmlns:b="clr-namespace:TextClipper.Behaviors"
         Title="TextClipper" Width="256" SizeToContent="Height"
         WindowStyle="None" ResizeMode="NoResize"
         Topmost="{Binding TopMost}"
@@ -60,7 +61,10 @@
                 <Button Padding="0" ToolTip="Plugin" Style="{StaticResource CaptionButtonStyle}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
                     <Image Source="../Resources/extension.png"/>
                 </Button>
-                <ItemsControl ItemsSource="{Binding Plugins}">
+                <ItemsControl ItemsSource="{Binding Plugins}" AllowDrop="True">
+                    <i:Interaction.Behaviors>
+                        <b:AcceptDragBehavior Description="{Binding Description}"/>
+                    </i:Interaction.Behaviors>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -69,7 +73,10 @@
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox ToolTip="{Binding Plugin.Description}" Style="{StaticResource CaptionControlStyle}" IsChecked="{Binding IsEnabled, Mode=TwoWay}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                            <CheckBox Cursor="Hand" ToolTip="{Binding Plugin.Description}" Style="{StaticResource CaptionControlStyle}" IsChecked="{Binding IsEnabled, Mode=TwoWay}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                                <i:Interaction.Behaviors>
+                                    <b:BeginDragBehavior AllowedEffects="Move" DragDropData="{Binding}"/>
+                                </i:Interaction.Behaviors>
                                 <CheckBox.Template>
                                     <ControlTemplate>
                                         <Image Source="{Binding Plugin.Icon}">

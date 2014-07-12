@@ -101,5 +101,46 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="FlatCheckBoxStyle" TargetType="CheckBox" BasedOn="{StaticResource CaptionControlStyle}">
+            <!--<Setter Property="Padding" Value="{TemplateBinding Padding}"/>-->
+            <!--<Setter Property="Margin" Value="{TemplateBinding Margin}"/>-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox" >
+                        <Border>
+                            <TextBlock>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="Black"/>
+                                        <Setter Property="Text" Value="{Binding Content,RelativeSource={RelativeSource AncestorType=CheckBox}}"/>
+                                        <Setter Property="Margin" Value="1"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=CheckBox}}" Value="True">
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Setter Property="BorderBrush" Value="Silver"/>
+                                    <Setter Property="Background" Value="White"/>
+                                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=CheckBox}}" Value="True">
+                                            <Setter Property="Border.Background" Value="DodgerBlue"/>
+                                            <!--<Setter Property="Border.BorderBrush" Value="White"/>-->
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>

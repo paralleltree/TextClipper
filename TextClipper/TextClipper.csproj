@@ -82,8 +82,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Behaviors\AcceptDragBehavior.cs" />
+    <Compile Include="Behaviors\BeginDragBehavior.cs" />
     <Compile Include="Converters\StringShortenerConverter.cs" />
     <Compile Include="Converters\VisibilityCoverter.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Models\Model.cs" />
     <Compile Include="PluginInfo.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />

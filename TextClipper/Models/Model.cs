@@ -18,8 +18,8 @@ namespace TextClipper.Models
         private ObservableCollection<ClipItem> _clippedtexts;
         public ObservableCollection<ClipItem> ClippedTexts { get { return _clippedtexts; } }
 
-        private IEnumerable<PluginInfo> _plugins;
-        public IEnumerable<PluginInfo> Plugins { get { return _plugins; } }
+        private DispatcherCollection<PluginInfo> _plugins;
+        public DispatcherCollection<PluginInfo> Plugins { get { return _plugins; } }
 
 
         private Model()
@@ -30,12 +30,14 @@ namespace TextClipper.Models
             else
                 _clippedtexts = new ObservableCollection<ClipItem>(last);
 
-            _plugins = PluginInfo.GetPlugins();
+            _plugins = new DispatcherCollection<PluginInfo>(DispatcherHelper.UIDispatcher);
+            foreach (PluginInfo p in PluginInfo.GetPlugins()) _plugins.Add(p);
         }
 
         ~Model()
         {
             foreach (PluginInfo p in Plugins) p.Plugin.Exit();
+            PluginInfo.SaveOrder(Plugins);
             ContentUtil.SaveContents(ClippedTexts);
         }
 
@@ -85,7 +87,7 @@ namespace TextClipper.Models
                 if (!System.IO.File.Exists(TextsPath)) return list;
 
                 string source = new System.IO.StreamReader(TextsPath).ReadToEnd();
-                var line = System.Text.RegularExpressions.Regex.Split(source, @"\r*\n+").TakeWhile(p => p != "");
+                var line = System.Text.RegularExpressions.Regex.Split(source, @"\r*\n+").Where(p => p != "");
                 foreach (string s in line)
                 {
                     var items = s.Split(',');
@@ -102,11 +104,9 @@ namespace TextClipper.Models
             {
                 var sb = new StringBuilder(values.Sum(p => p.Value.Length) * 2 + values.Count() * 20);
                 foreach (ClipItem item in values)
-                {
-                    sb.Append(item.Created.ToString());
-                    sb.Append(',');
-                    sb.AppendLine(Convert.ToBase64String(enc.GetBytes(item.Value), Base64FormattingOptions.None));
-                }
+                    sb.AppendLine(string.Format("{0},{1}",
+                        item.Created.ToString(),
+                        Convert.ToBase64String(enc.GetBytes(item.Value), Base64FormattingOptions.None)));
 
                 using (var writer = new System.IO.StreamWriter(TextsPath))
                     writer.Write(sb.ToString());

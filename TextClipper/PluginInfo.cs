@@ -43,6 +43,7 @@ namespace TextClipper.Plugin
             IsEnabled = true;
         }
 
+        #region static
         /// <summary>
         /// 存在するプラグインを取得します。
         /// </summary>
@@ -52,7 +53,6 @@ namespace TextClipper.Plugin
             const string PluginPath = "Plugins";
             if (!System.IO.Directory.Exists(PluginPath)) System.IO.Directory.CreateDirectory(PluginPath);
 
-            //var assembly = new AssemblyCatalog(Assembly.GetExecutingAssembly());
             var extensions = new DirectoryCatalog(PluginPath);
             var catalog = new AggregateCatalog();
             catalog.Catalogs.Add(extensions);
@@ -60,8 +60,64 @@ namespace TextClipper.Plugin
             var container = new CompositionContainer(catalog);
             var plugins = container.GetExportedValues<IPlugin>();
             var list = new List<PluginInfo>();
-            foreach (IPlugin p in plugins) list.Add(new PluginInfo(p));
+
+            // 適用順に則る
+            // 保存されていたリストを読んで
+            var saved = OpenOrder();
+            // 新たに追加されたプラグインを取得
+            var diff = plugins.Select(p => p.Name).Except(saved.Select(p => p.Key));
+            // とりあえず記録の最後に連結して
+            var order = saved.Select(p => p.Key).Concat(diff);
+            // 存在するプラグインと帳尻合わせ
+            var ordered = order.Join(plugins, p => p, q => q.Name, (p, q) => q);
+
+            foreach (IPlugin p in ordered)
+                list.Add(new PluginInfo(p)
+                {
+                    IsEnabled = saved.SingleOrDefault(q => p.Name == q.Key).Value
+                });
             return list;
         }
+
+        private static readonly Encoding enc = Encoding.UTF8;
+        private static readonly string PluginsPath = "Plugins.txt";
+
+        /// <summary>
+        /// プラグインの適用順を保存します。
+        /// </summary>
+        public static void SaveOrder(IEnumerable<PluginInfo> plugins)
+        {
+            var sb = new StringBuilder(plugins.Sum(p => p.Plugin.Name.Length) * 2);
+            foreach (PluginInfo p in plugins)
+                sb.AppendLine(
+                    string.Join(",",
+                        Convert.ToBase64String(enc.GetBytes(p.Plugin.Name), Base64FormattingOptions.None),
+                        p.IsEnabled.ToString())
+                );
+
+            using (var writer = new System.IO.StreamWriter(PluginsPath))
+                writer.Write(sb.ToString());
+        }
+
+        /// <summary>
+        /// プラグインの適用順を示す<see cref="System.Collections.Generic.IEnumerable{KeyValuePair{string, bool}}"/> を取得します。
+        /// </summary>
+        /// <returns></returns>
+        private static IEnumerable<KeyValuePair<string, bool>> OpenOrder()
+        {
+            var list = new Dictionary<string, bool>();
+            if (!System.IO.File.Exists(PluginsPath)) return list;
+
+            string source = new System.IO.StreamReader(PluginsPath).ReadToEnd();
+            var line = source.SplitByNewLine().Where(p => p != "");
+            foreach (string s in line)
+            {
+                string[] str = s.Split(',');
+                list.Add(enc.GetString(Convert.FromBase64String(str[0])), bool.Parse(str[1]));
+            }
+            return list;
+        }
+
+        #endregion
     }
 }
