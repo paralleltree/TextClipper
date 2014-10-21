@@ -208,13 +208,13 @@ namespace TextClipper.ViewModels
 
         public void Initialize()
         {
-            model = Model.Instance;
             RaisePropertyChanged("ClippedTexts");
             RaisePropertyChanged("Plugins");
         }
 
         public MainWindowViewModel()
         {
+            model = Model.Instance;
             this._description = new DropAcceptDescription();
             this._description.DragOver += this.OnDragOver;
             this._description.DragDrop += this.OnDragDrop;
